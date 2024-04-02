@@ -7,7 +7,7 @@ def is_match(search_term, file_name, case_sensitive=True):
 
 
 def show_deepest_file(context):
-    if "all_files" not in context or not context["all_files", []]:
+    if "all_files" not in context or not context["all_files"]:
         print("No files found")
     else:
         deepest_file = max(context["all_files"], key=lambda x: x.count('/'))
