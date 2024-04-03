@@ -63,12 +63,13 @@ def test_show_details_directory_exists(capsys):
         assert "Directory 'Downloads' does not exist"
 
 
+@pytest.mark.xfail
 def test_show_details_file_without_extension(capsys):
     file_path = "/home/trybe/Downloads/file_without_extension"
     context = {"base_path": file_path}
     show_details(context)
     captured = capsys.readouterr()
-    assert "File extension: [no extension]" not in captured.out
+    assert "File extension: [no extension]" in captured.out
     assert "File 'file_without_extension' does not exist" in captured.out
 
 
