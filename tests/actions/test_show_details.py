@@ -66,7 +66,6 @@ def test_show_details_file_without_extension(capsys):
     context = {"base_path": file_path}
     show_details(context)
     captured = capsys.readouterr()
-    assert "File extension: [no extension]"
     assert "File 'file_without_extension' does not exist" in captured.out
 
 
