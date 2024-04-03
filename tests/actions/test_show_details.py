@@ -1,84 +1,45 @@
-import os
-from datetime import datetime
-
-import pytest
 from pro_filer.actions.main_actions import show_details
+from datetime import date
 
 
-def test_show_details_file_exists(capsys):
-    file_path = "/home/trybe/Downloads/Trybe_logo.png"
-    context = {"base_path": file_path}
-    if os.path.exists(file_path):
-        show_details(context)
-        captured = capsys.readouterr()
-        assert f"File name: {file_path.split('/')[-1]}" in captured.out
-        assert (
-            f"""File size in bytes:
-        {os.path.getsize(file_path)}"""
-            in captured.out
-        )
-        assert "File type: file" in captured.out
-        _, file_extension = os.path.splitext(file_path)
-        file_extension_msg = "File extension: " + (
-            file_extension or "[no extension]"
-        )
-        assert file_extension_msg in captured.out
-        mod_date = datetime.fromtimestamp(
-            os.path.getmtime(file_path)
-        ).strftime("%Y-%m-%d")
-        assert f"Last modified date: {mod_date}" in captured.out
-    else:
-        assert "File 'Trybe_logo.png' does not exist"
-
-
-def test_show_details_file_not_exists(capsys):
-    file_path = "/home/trybe/????"
-    context = {"base_path": file_path}
+def test_show_details_no_path(capsys):
+    context = {"base_path": "/home/trybe/xablau"}
     show_details(context)
     captured = capsys.readouterr()
-    assert "File '????' does not exist" in captured.out
+    assert captured.out == "File 'xablau' does not exist\n"
 
 
-def test_show_details_directory_exists(capsys):
-    dir_path = "/home/trybe/Downloads"
-    context = {"base_path": dir_path}
+def test_show_details_ok_path(capsys, tmp_path):
+    file_path = tmp_path / "Trybe_logo.png"
+    file_path.write_text("Dummy content")
+    context = {"base_path": str(file_path)}
 
-    if os.path.exists(dir_path):
-        show_details(context)
-        captured = capsys.readouterr()
-        assert f"File name: {dir_path.split('/')[-1]}" in captured.out
-        assert (
-            f"""File size in bytes: {
-            os.path.getsize(dir_path)
-            }"""
-            in captured.out
-        )
-        assert "File type: directory" in captured.out
-        assert "File extension: [no extension]" in captured.out
-        mod_date = datetime.fromtimestamp(os.path.getmtime(dir_path)).strftime(
-            "%Y-%m-%d"
-        )
-        assert f"Last modified date: {mod_date}" in captured.out
-    else:
-        assert "Directory 'Downloads' does not exist"
-
-
-@pytest.mark.xfail
-def test_show_details_file_without_extension(capsys):
-    file_path = "/home/trybe/Downloads/file_without_extension"
-    context = {"base_path": file_path}
     show_details(context)
     captured = capsys.readouterr()
-    assert "File extension: [no extension]" in captured.out
-    assert "File 'file_without_extension' does not exist" in captured.out
+    expected_output = (
+        f"File name: Trybe_logo.png\n"
+        f"File size in bytes: {file_path.stat().st_size}\n"
+        f"File type: file\n"
+        f"File extension: .png\n"
+        f"""Last modified date: {date.fromtimestamp
+                                 (file_path.stat().st_mtime).isoformat()}\n"""
+    )
+    assert captured.out == expected_output
 
 
-@pytest.mark.xfail
-def test_show_details_file_with_timestamp_creation_date(capsys):
-    file_path = "/home/trybe/Downloads/file_with_timestamp_creation_date"
-    context = {"base_path": file_path}
+def test_show_details_no_extension(capsys, tmp_path):
+    file_path = tmp_path / "Trybe_logo"
+    file_path.write_text("Dummy content")
+    context = {"base_path": str(file_path)}
+
     show_details(context)
     captured = capsys.readouterr()
-    mod_date_expected = "Last modified date: 2024-04-05"
-    assert mod_date_expected not in captured.out
-    assert f"File '{file_path}' does not exist" in captured.out
+    expected_output = (
+        f"File name: Trybe_logo\n"
+        f"File size in bytes: {file_path.stat().st_size}\n"
+        f"File type: file\n"
+        f"File extension: [no extension]\n"
+        f"""Last modified date: {date.fromtimestamp
+                                 (file_path.stat().st_mtime)}\n"""
+    )
+    assert captured.out == expected_output
