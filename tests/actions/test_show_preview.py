@@ -13,13 +13,9 @@ def test_show_preview_with_data(capsys):
     show_preview(context)
     captured = capsys.readouterr()
     assert "Found 3 files and 2 directories" in captured.out
-    assert (
-        "First 5 files: ['src/__init__.py', "
-        "'src/app.py', "
-        "'src/utils/__init__.py']"
-        in captured.out
-    )
-    assert "First 5 directories: ['src', 'src/utils']" in captured.out
+    assert "Found 3 files and 2 directories" in captured.out
+    assert f'First 5 files: {context["all_files"][:5]}' in captured.out
+    assert f'First 5 directories: {context["all_dirs"][:5]}' in captured.out
 
 
 def test_show_preview_no_data(capsys):
@@ -27,3 +23,15 @@ def test_show_preview_no_data(capsys):
     show_preview(context)
     captured = capsys.readouterr()
     assert "Found 0 files and 0 directories" in captured.out
+
+
+def test_show_preview_exceeds_limit(capsys):
+    context = {
+        "all_files": ["file1", "file2", "file3", "file4", "file5", "file6"],
+        "all_dirs": ["dir1", "dir2", "dir3", "dir4", "dir5", "dir6"],
+    }
+    show_preview(context)
+    captured = capsys.readouterr()
+    assert "Found 6 files and 6 directories" in captured.out
+    assert f'First 5 files: {context["all_files"][:5]}' in captured.out
+    assert f'First 5 directories: {context["all_dirs"][:5]}' in captured.out
