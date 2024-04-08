@@ -38,7 +38,6 @@ def test_find_duplicate_files_with_duplicates(tmp_files, tmp_files_duplicate):
 
 
 def test_find_duplicate_files_missing_file(tmp_files):
-    # Add a non-existent file
     tmp_files.append("non_existent_file.txt")
 
     context = {"all_files": tmp_files}
